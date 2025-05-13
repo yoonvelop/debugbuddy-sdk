@@ -1,9 +1,10 @@
 import { initConsoleHook, restoreConsole } from '../hooks/consoleHook';
+import { installFetchHook, restoreFetch } from '../hooks/fetchHook';
 
 /**
  * 설치/해제 가능한 Hook 종류 정의
  */
-type HookType = 'console';
+type HookType = 'console' | 'fetch';
 
 /**
  * HookManager는 여러 Hook을 한 번에 설치/해제하고
@@ -13,6 +14,7 @@ export const HookManager = (() => {
     // 어떤 Hook이 설치됐는지 관리하는 상태 객체
     const installedHooks: Record<HookType, boolean> = {
         console: false,
+        fetch: false,
     };
 
     return {
@@ -24,7 +26,10 @@ export const HookManager = (() => {
                 initConsoleHook();
                 installedHooks.console = true;
             }
-            // 이후 fetchHook, errorHook도 여기 추가
+            if (!installedHooks.fetch) {
+                installFetchHook();
+                installedHooks.fetch = true;
+            }
         },
 
         /**
@@ -35,7 +40,10 @@ export const HookManager = (() => {
                 restoreConsole();
                 installedHooks.console = false;
             }
-            // 이후 fetchHook, errorHook도 여기 추가
+            if (installedHooks.fetch) {
+                restoreFetch();
+                installedHooks.fetch = false;
+            }
         },
 
         /**
@@ -47,6 +55,10 @@ export const HookManager = (() => {
                 initConsoleHook();
                 installedHooks.console = true;
             }
+            if (type === 'fetch' && !installedHooks.fetch) {
+                installFetchHook();
+                installedHooks.fetch = true;
+            }
         },
 
         /**
@@ -57,6 +69,10 @@ export const HookManager = (() => {
             if (type === 'console' && installedHooks.console) {
                 restoreConsole();
                 installedHooks.console = false;
+            }
+            if (type === 'fetch' && installedHooks.fetch) {
+                restoreFetch();
+                installedHooks.fetch = false;
             }
         },
 
