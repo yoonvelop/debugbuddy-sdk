@@ -1,10 +1,11 @@
-import { initConsoleHook, restoreConsole } from '../hooks/consoleHook';
-import { installFetchHook, restoreFetch } from '../hooks/fetchHook';
+import { installConsoleHook, restoreConsoleHook} from '../hooks/consoleHook';
+import {installFetchHook, restoreFetchHook} from '../hooks/fetchHook';
+import {ErrorLogData, installErrorHook, restoreErrorHook} from '../hooks/errorHook';
 
 /**
  * 설치/해제 가능한 Hook 종류 정의
  */
-type HookType = 'console' | 'fetch';
+type HookType = 'console' | 'fetch' | 'error';
 
 /**
  * HookManager는 여러 Hook을 한 번에 설치/해제하고
@@ -15,6 +16,7 @@ export const HookManager = (() => {
     const installedHooks: Record<HookType, boolean> = {
         console: false,
         fetch: false,
+        error: false,
     };
 
     return {
@@ -23,12 +25,16 @@ export const HookManager = (() => {
          */
         installAll() {
             if (!installedHooks.console) {
-                initConsoleHook();
+                installConsoleHook();
                 installedHooks.console = true;
             }
             if (!installedHooks.fetch) {
                 installFetchHook();
                 installedHooks.fetch = true;
+            }
+            if (!installedHooks.error) {
+                installErrorHook();
+                installedHooks.error = true;
             }
         },
 
@@ -37,27 +43,36 @@ export const HookManager = (() => {
          */
         uninstallAll() {
             if (installedHooks.console) {
-                restoreConsole();
+                restoreConsoleHook();
                 installedHooks.console = false;
             }
             if (installedHooks.fetch) {
-                restoreFetch();
+                restoreFetchHook();
                 installedHooks.fetch = false;
+            }
+            if (installedHooks.error) {
+                restoreErrorHook();
+                installedHooks.error = false;
             }
         },
 
         /**
          * 특정 Hook만 설치
          * @param type Hook 타입
+         * @param onError
          */
-        install(type: HookType) {
+        install(type: HookType, onError?: (log: ErrorLogData) => void) {
             if (type === 'console' && !installedHooks.console) {
-                initConsoleHook();
+                installConsoleHook();
                 installedHooks.console = true;
             }
             if (type === 'fetch' && !installedHooks.fetch) {
                 installFetchHook();
                 installedHooks.fetch = true;
+            }
+            if (type === 'error' && !installedHooks.error) {
+                installErrorHook(onError);
+                installedHooks.error = true;
             }
         },
 
@@ -67,12 +82,16 @@ export const HookManager = (() => {
          */
         uninstall(type: HookType) {
             if (type === 'console' && installedHooks.console) {
-                restoreConsole();
+                restoreConsoleHook();
                 installedHooks.console = false;
             }
             if (type === 'fetch' && installedHooks.fetch) {
-                restoreFetch();
+                restoreFetchHook();
                 installedHooks.fetch = false;
+            }
+            if (type === 'error' && installedHooks.error) {
+                restoreErrorHook();
+                installedHooks.error = false;
             }
         },
 

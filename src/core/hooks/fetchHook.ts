@@ -63,7 +63,7 @@ export const installFetchHook = (onFetch?: (log: FetchLogData) => void) => {
 /**
  * 가로챈 fetch를 원본으로 복원하는 함수
  */
-export const restoreFetch = () => {
+export const restoreFetchHook = () => {
     if (originalFetch) {
         window.fetch = originalFetch;
         originalFetch = null;

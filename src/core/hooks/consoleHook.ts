@@ -20,7 +20,7 @@ const logs: LogData[] = [];
  *
  * @param onLog 로그 발생 시 호출되는 콜백 함수 (선택)
  */
-export const initConsoleHook = (onLog?: (log: LogData) => void) => {
+export const installConsoleHook = (onLog?: (log: LogData) => void) => {
     (['log', 'info', 'warn', 'error'] as LogLevel[]).forEach((level) => {
         // 기존 console 메서드를 저장해둠
         originalConsole[level] = console[level];
@@ -43,7 +43,7 @@ export const initConsoleHook = (onLog?: (log: LogData) => void) => {
 /**
  * 가로챈 콘솔 메서드를 원래 상태로 복원하는 함수
  */
-export const restoreConsole = () => {
+export const restoreConsoleHook = () => {
     (['log', 'info', 'warn', 'error'] as LogLevel[]).forEach((level) => {
         if (originalConsole[level]) {
             console[level] = originalConsole[level]!;

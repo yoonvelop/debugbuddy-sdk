@@ -1,24 +1,24 @@
 import { HookManager } from '../manager/hookManager';
 
-HookManager.installAll();
 
-console.log('Hello from debugbuddy!');
-console.warn('경고입니다!');
-console.error('에러 발생!');
+import { getErrorLogs } from '../hooks/errorHook';
 
-console.log('현재 상태:', HookManager.getStatus());
+HookManager.install('error', (log) => {
+    console.log('💥 ErrorHook에서 수집한 로그:', log);
+});
 
-HookManager.uninstallAll();
+console.log('콘솔 테스트');
+fetch('https://jsonplaceholder.typicode.com/posts/1');
 
-console.log('이건 더이상 가로채지 않음');
+setTimeout(() => {
+    throw new Error('테스트 에러 발생');
+}, 1000);
 
-fetch('https://jsonplaceholder.typicode.com/posts/1')
-    .then(res => res.json())
-    .then(data => console.log('fetch 응답', data))
-    .catch(err => console.error('fetch 에러', err));
+Promise.reject('테스트 unhandled rejection');
 
 setTimeout(() => {
     console.log('설치 상태:', HookManager.getStatus());
+    console.log('📝 수집된 에러 로그:', getErrorLogs());
     HookManager.uninstallAll();
-    console.log('hook 해제 후 로그');
-}, 3000);
+    console.log('모두 해제 후 상태:', HookManager.getStatus());
+}, 5000);
