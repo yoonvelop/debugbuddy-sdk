@@ -1,7 +1,13 @@
-import { initConsoleHook } from "../hooks/consoleHook";
+import { HookManager } from '../manager/hookManager';
 
-initConsoleHook();
+HookManager.installAll();
 
-console.log("테스트 로그: Hello from browser");
-console.warn("테스트 워닝");
-console.error("테스트 에러");
+console.log('Hello from debugbuddy!');
+console.warn('경고입니다!');
+console.error('에러 발생!');
+
+console.log('현재 상태:', HookManager.getStatus());
+
+HookManager.uninstallAll();
+
+console.log('이건 더이상 가로채지 않음');
