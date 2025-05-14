@@ -70,7 +70,3 @@ export const restoreFetchHook = () => {
     }
 };
 
-/**
- * 수집한 fetch 로그 가져오기
- */
-export const getFetchLogs = () => fetchLogs;

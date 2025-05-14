@@ -89,7 +89,3 @@ export const restoreErrorHook = () => {
     }
 };
 
-/**
- * 수집한 에러 로그 가져오기
- */
-export const getErrorLogs = () => errorLogs;

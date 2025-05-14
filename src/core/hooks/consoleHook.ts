@@ -51,9 +51,3 @@ export const restoreConsoleHook = () => {
     });
 };
 
-/**
- * 현재까지 수집된 로그 데이터를 반환하는 함수
- *
- * @returns LogData[] 로그 데이터 배열
- */
-export const getLogs = () => logs;

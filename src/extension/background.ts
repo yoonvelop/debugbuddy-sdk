@@ -99,13 +99,3 @@ chrome.runtime.onInstalled.addListener(() => {
   }
 });
 
-/**
- * 탭 업데이트 이벤트 핸들러
- * 콘텐츠 스크립트는 manifest.json에서 자동 주입됨
- */
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  // 탭 로딩이 완료되고 HTTP/HTTPS URL인 경우에만 처리
-  if (changeInfo.status === 'complete' && tab.url && tab.url.startsWith('http')) {
-    // 필요한 초기화 작업이 있다면 여기에 추가
-  }
-});

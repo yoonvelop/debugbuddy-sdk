@@ -1,7 +1,7 @@
 import {HookManager} from "../core/manager/hookManager";
-import {getLogs, LogData} from "../core/hooks/consoleHook";
-import {getErrorLogs, ErrorLogData} from "../core/hooks/errorHook";
-import {getFetchLogs, FetchLogData} from "../core/hooks/fetchHook";
+import {LogData} from "../core/hooks/consoleHook";
+import {ErrorLogData} from "../core/hooks/errorHook";
+import {FetchLogData} from "../core/hooks/fetchHook";
 
 // 메시지 타입 정의
 type LogsUpdateMessage = {

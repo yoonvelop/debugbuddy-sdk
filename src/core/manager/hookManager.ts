@@ -20,48 +20,6 @@ export const HookManager = (() => {
     };
 
     return {
-        /**
-         * 모든 Hook 설치
-         * @param onConsoleLog 콘솔 로그 발생 시 호출할 콜백 함수 (선택)
-         * @param onFetch fetch 요청 발생 시 호출할 콜백 함수 (선택)
-         * @param onError 에러 발생 시 호출할 콜백 함수 (선택)
-         */
-        installAll(
-            onConsoleLog?: (log: LogData) => void,
-            onFetch?: (log: FetchLogData) => void,
-            onError?: (log: ErrorLogData) => void
-        ) {
-            if (!installedHooks.console) {
-                installConsoleHook(onConsoleLog);
-                installedHooks.console = true;
-            }
-            if (!installedHooks.fetch) {
-                installFetchHook(onFetch);
-                installedHooks.fetch = true;
-            }
-            if (!installedHooks.error) {
-                installErrorHook(onError);
-                installedHooks.error = true;
-            }
-        },
-
-        /**
-         * 모든 Hook 해제
-         */
-        uninstallAll() {
-            if (installedHooks.console) {
-                restoreConsoleHook();
-                installedHooks.console = false;
-            }
-            if (installedHooks.fetch) {
-                restoreFetchHook();
-                installedHooks.fetch = false;
-            }
-            if (installedHooks.error) {
-                restoreErrorHook();
-                installedHooks.error = false;
-            }
-        },
 
         /**
          * 특정 Hook만 설치
@@ -83,24 +41,6 @@ export const HookManager = (() => {
             }
         },
 
-        /**
-         * 특정 Hook만 해제
-         * @param type Hook 타입
-         */
-        uninstall(type: HookType) {
-            if (type === 'console' && installedHooks.console) {
-                restoreConsoleHook();
-                installedHooks.console = false;
-            }
-            if (type === 'fetch' && installedHooks.fetch) {
-                restoreFetchHook();
-                installedHooks.fetch = false;
-            }
-            if (type === 'error' && installedHooks.error) {
-                restoreErrorHook();
-                installedHooks.error = false;
-            }
-        },
 
         /**
          * 현재 설치 상태 확인
