@@ -5,13 +5,13 @@ let activeTab = 'console';
 let logs = {
   console: [],
   error: [],
-  fetch: []
+  fetch: [],
 };
 
 // 페이지 로드 시 실행
 document.addEventListener('DOMContentLoaded', () => {
   // 탭 클릭 이벤트 리스너 등록
-  document.querySelectorAll('.tab').forEach(tab => {
+  document.querySelectorAll('.tab').forEach((tab) => {
     tab.addEventListener('click', () => {
       // 이전 활성 탭 비활성화
       document.querySelector('.tab.active').classList.remove('active');
@@ -49,11 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const logText = JSON.stringify(logsToCopy, null, 2);
 
     // 클립보드에 복사
-    navigator.clipboard.writeText(logText)
+    navigator.clipboard
+      .writeText(logText)
       .then(() => {
         alert('로그가 클립보드에 복사되었습니다.');
       })
-      .catch(err => {
+      .catch((err) => {
         console.error('클립보드 복사 실패:', err);
         alert('클립보드 복사에 실패했습니다.');
       });
@@ -65,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 백그라운드에서 로그 데이터 로드
 function loadLogs() {
-  chrome.runtime.sendMessage({ type: 'GET_LOGS' }, response => {
+  chrome.runtime.sendMessage({ type: 'GET_LOGS' }, (response) => {
     if (response) {
       logs = response;
       renderLogs();
@@ -76,8 +77,8 @@ function loadLogs() {
 
 // 로그 수 업데이트
 function updateLogCount() {
-  const totalCount = logs.console.length + logs.error.length + logs.fetch.length;
-  document.getElementById('log-count').textContent = totalCount;
+  document.getElementById('log-count').textContent =
+    logs.console.length + logs.error.length + logs.fetch.length;
 }
 
 // 로그 렌더링
@@ -96,7 +97,7 @@ function renderLogs() {
 
   if (activeTab === 'console') {
     // 콘솔 로그 렌더링
-    currentLogs.forEach(log => {
+    currentLogs.forEach((log) => {
       const date = new Date(log.timestamp);
       const timeString = date.toLocaleTimeString();
 
@@ -109,7 +110,7 @@ function renderLogs() {
     });
   } else if (activeTab === 'error') {
     // 에러 로그 렌더링
-    currentLogs.forEach(log => {
+    currentLogs.forEach((log) => {
       const date = new Date(log.timestamp);
       const timeString = date.toLocaleTimeString();
 
@@ -124,7 +125,7 @@ function renderLogs() {
     });
   } else if (activeTab === 'fetch') {
     // 네트워크 로그 렌더링
-    currentLogs.forEach(log => {
+    currentLogs.forEach((log) => {
       const date = new Date(log.timestamp);
       const timeString = date.toLocaleTimeString();
       const statusClass = log.status && log.status >= 400 ? 'error' : 'fetch';
@@ -149,24 +150,26 @@ function formatLogMessage(messages) {
     return escapeHtml(String(messages));
   }
 
-  return messages.map(msg => {
-    if (typeof msg === 'object') {
-      try {
-        return `<pre>${escapeHtml(JSON.stringify(msg, null, 2))}</pre>`;
-      } catch (e) {
-        return escapeHtml(String(msg));
+  return messages
+    .map((msg) => {
+      if (typeof msg === 'object') {
+        try {
+          return `<pre>${escapeHtml(JSON.stringify(msg, null, 2))}</pre>`;
+        } catch (e) {
+          return escapeHtml(String(msg));
+        }
       }
-    }
-    return escapeHtml(String(msg));
-  }).join(' ');
+      return escapeHtml(String(msg));
+    })
+    .join(' ');
 }
 
 // HTML 이스케이프
 function escapeHtml(unsafe) {
   return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }

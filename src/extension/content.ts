@@ -1,7 +1,7 @@
-import {HookManager} from "../core/manager/hookManager";
-import {LogData} from "../core/hooks/consoleHook";
-import {ErrorLogData} from "../core/hooks/errorHook";
-import {FetchLogData} from "../core/hooks/fetchHook";
+import { HookManager } from '../core/manager/hookManager';
+import { LogData } from '../core/hooks/consoleHook';
+import { ErrorLogData } from '../core/hooks/errorHook';
+import { FetchLogData } from '../core/hooks/fetchHook';
 
 // 메시지 타입 정의
 type LogsUpdateMessage = {
@@ -37,7 +37,7 @@ function setupConsoleHook() {
     log: console.log,
     info: console.info,
     warn: console.warn,
-    error: console.error
+    error: console.error,
   };
 
   /**
@@ -54,13 +54,13 @@ function setupConsoleHook() {
       '[DebugBuddy]',
       '백그라운드로 로그 전송',
       'Hook 설치 완료',
-      'HookManager 상태'
+      'HookManager 상태',
     ];
 
     try {
       // 첫 번째 인자를 문자열로 변환하여 키워드 포함 여부 확인
       const firstArgStr = String(args[0]);
-      return debugKeywords.some(keyword => firstArgStr.includes(keyword));
+      return debugKeywords.some((keyword) => firstArgStr.includes(keyword));
     } catch (e) {
       // 변환 중 오류 발생 시 안전하게 false 반환
       return false;
@@ -81,19 +81,21 @@ function setupConsoleHook() {
   const createConsoleLogEvent = (level: ConsoleLevel, args: unknown[]): void => {
     // 로그 데이터 처리 및 백그라운드로 전송
     sendLogsToBackground({
-      console: [{
-        level,
-        message: sanitizeLogMessage(args),
-        timestamp: Date.now()
-      }],
+      console: [
+        {
+          level,
+          message: sanitizeLogMessage(args),
+          timestamp: Date.now(),
+        },
+      ],
       error: [],
-      fetch: []
+      fetch: [],
     });
   };
 
   // console 메서드 재정의
-  (['log', 'info', 'warn', 'error'] as ConsoleLevel[]).forEach(level => {
-    (console as Record<string, any>)[level] = function(...args: unknown[]) {
+  (['log', 'info', 'warn', 'error'] as ConsoleLevel[]).forEach((level) => {
+    (console as Record<string, any>)[level] = function (...args: unknown[]) {
       // 이미 로그 처리 중이거나 디버그 메시지인 경우 원본 메서드만 호출하고 종료
       if (isProcessingLog || isDebugMessage(args)) {
         originalConsole[level].apply(console, args);
@@ -145,7 +147,7 @@ const sendLogsToBackground = (logs: {
     safeLog('백그라운드로 로그 전송:', {
       console: logs.console.length,
       error: logs.error.length,
-      fetch: logs.fetch.length
+      fetch: logs.fetch.length,
     });
 
     // 로그 데이터 복사 및 제한
@@ -154,7 +156,7 @@ const sendLogsToBackground = (logs: {
     // 메시지 생성
     const message: LogsUpdateMessage = {
       type: 'LOGS_UPDATE',
-      payload: safePayload
+      payload: safePayload,
     };
 
     // 메시지 전송
@@ -182,7 +184,7 @@ const limitLogSize = (logs: {
   const result = {
     console: [...logs.console],
     error: [...logs.error],
-    fetch: [...logs.fetch]
+    fetch: [...logs.fetch],
   };
 
   if (result.console.length > MAX_ITEMS) {
@@ -204,7 +206,7 @@ const limitLogSize = (logs: {
  */
 const sendMessageToBackground = (message: LogsUpdateMessage): void => {
   try {
-    chrome.runtime.sendMessage(message, response => {
+    chrome.runtime.sendMessage(message, (response) => {
       if (chrome.runtime.lastError) {
         // 메시지 포트 닫힘 에러는 일반적인 상황이므로 무시
         const errorMessage = chrome.runtime.lastError.message || '';
@@ -229,7 +231,7 @@ const sendMessageToBackground = (message: LogsUpdateMessage): void => {
 const sanitizeLogMessage = (message: unknown[]): unknown[] => {
   try {
     // 메시지가 너무 크거나 복잡한 경우 간소화
-    return message.map(item => {
+    return message.map((item) => {
       // null 또는 undefined 처리
       if (item === null) return 'null';
       if (item === undefined) return 'undefined';
@@ -261,15 +263,11 @@ const sanitizeObjectValue = (value: object): string => {
 
     // 문자열이 너무 길면 잘라내기
     const MAX_LENGTH = 1000;
-    return str.length > MAX_LENGTH
-      ? str.substring(0, MAX_LENGTH) + '... (truncated)'
-      : str;
+    return str.length > MAX_LENGTH ? str.substring(0, MAX_LENGTH) + '... (truncated)' : str;
   } catch (e) {
     // JSON 변환 실패 시 객체 타입만 반환
-    const constructorName = value &&
-      typeof value === 'object' &&
-      'constructor' in value &&
-      value.constructor?.name
+    const constructorName =
+      value && typeof value === 'object' && 'constructor' in value && value.constructor?.name
         ? value.constructor.name
         : 'Object';
 
@@ -297,7 +295,7 @@ const sanitizeErrorLog = (log: ErrorLogData): ErrorLogData => {
     return {
       message: '[에러 로그 처리 오류]',
       type: 'error',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 };
@@ -314,7 +312,7 @@ const sanitizeErrorObject = (error: unknown): unknown => {
       return {
         name: error.name,
         message: error.message,
-        stack: error.stack?.substring(0, 1000)
+        stack: error.stack?.substring(0, 1000),
       };
     }
 
@@ -361,7 +359,7 @@ const sanitizeFetchLog = (log: FetchLogData): FetchLogData => {
     return {
       url: log.url || '[URL 처리 오류]',
       method: log.method || 'UNKNOWN',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
   }
 };
@@ -403,7 +401,7 @@ const onError = (log: ErrorLogData): void => {
     sendLogsToBackground({
       console: [],
       error: [sanitizedLog],
-      fetch: []
+      fetch: [],
     });
   } catch (e) {
     safeLog('에러 로그 전송 중 오류:', e);
@@ -420,7 +418,7 @@ const onFetch = (log: FetchLogData): void => {
     sendLogsToBackground({
       console: [],
       error: [],
-      fetch: [sanitizedLog]
+      fetch: [sanitizedLog],
     });
   } catch (e) {
     safeLog('fetch 로그 전송 중 오류:', e);
