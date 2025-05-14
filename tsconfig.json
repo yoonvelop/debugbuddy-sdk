@@ -1,17 +1,14 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationDir": "./dist",
-    "outDir": "./dist",
-    "emitDeclarationOnly": false,
-    "module": "ESNext",
     "target": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "Node",
+    "outDir": "./dist",
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "strict": true,
-    "lib": ["DOM", "ESNext"]
+    "skipLibCheck": true,
+    "lib": ["DOM", "ESNext"],
+    "types": ["chrome"]
   },
   "include": ["src"]
 }

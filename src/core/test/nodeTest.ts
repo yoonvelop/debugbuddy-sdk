@@ -1,6 +1,6 @@
-import { initConsoleHook } from "../hooks/consoleHook.js";
+import { installConsoleHook } from "../hooks/consoleHook.js";
 
-initConsoleHook();
+installConsoleHook();
 
 console.log("테스트 로그: Hello from node");
 console.warn("테스트 워닝");

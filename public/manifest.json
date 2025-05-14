@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "DebugBuddy",
+  "version": "1.0.0",
+  "description": "Console log tracker for MCP service",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "DebugBuddy",
+    "default_popup": "popup.html"
+  }
+}

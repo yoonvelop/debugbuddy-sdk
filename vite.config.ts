@@ -1,19 +1,33 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import dts from 'vite-plugin-dts'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export default defineConfig({
-  plugins: [react(), dts({ outDir: 'dist', insertTypesEntry: true })],
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'public/manifest.json',
+          dest: '.' // dist/로 복사
+        }
+      ]
+    })
+  ],
   build: {
-    outDir: 'dist',
-    lib: {
-      entry: 'src/index.ts',
-      name: 'debugbuddy-sdk',
-      formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format}.js`
-    },
     rollupOptions: {
-      external: ['react', 'react-dom']
-    }
+      input: {
+        background: path.resolve(__dirname, 'src/extension/background.ts'),
+        content: path.resolve(__dirname, 'src/extension/content.ts')
+      },
+      output: {
+        entryFileNames: '[name].js'
+      }
+    },
+    outDir: 'dist',
+    emptyOutDir: true
   }
 })

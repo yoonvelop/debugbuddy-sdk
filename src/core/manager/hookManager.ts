@@ -1,6 +1,6 @@
-import { installConsoleHook, restoreConsoleHook} from '../hooks/consoleHook';
-import {installFetchHook, restoreFetchHook} from '../hooks/fetchHook';
-import {ErrorLogData, installErrorHook, restoreErrorHook} from '../hooks/errorHook';
+import { installConsoleHook, restoreConsoleHook, LogData } from '../hooks/consoleHook';
+import { installFetchHook, restoreFetchHook, FetchLogData } from '../hooks/fetchHook';
+import { ErrorLogData, installErrorHook, restoreErrorHook } from '../hooks/errorHook';
 
 /**
  * 설치/해제 가능한 Hook 종류 정의
@@ -22,18 +22,25 @@ export const HookManager = (() => {
     return {
         /**
          * 모든 Hook 설치
+         * @param onConsoleLog 콘솔 로그 발생 시 호출할 콜백 함수 (선택)
+         * @param onFetch fetch 요청 발생 시 호출할 콜백 함수 (선택)
+         * @param onError 에러 발생 시 호출할 콜백 함수 (선택)
          */
-        installAll() {
+        installAll(
+            onConsoleLog?: (log: LogData) => void,
+            onFetch?: (log: FetchLogData) => void,
+            onError?: (log: ErrorLogData) => void
+        ) {
             if (!installedHooks.console) {
-                installConsoleHook();
+                installConsoleHook(onConsoleLog);
                 installedHooks.console = true;
             }
             if (!installedHooks.fetch) {
-                installFetchHook();
+                installFetchHook(onFetch);
                 installedHooks.fetch = true;
             }
             if (!installedHooks.error) {
-                installErrorHook();
+                installErrorHook(onError);
                 installedHooks.error = true;
             }
         },
@@ -59,19 +66,19 @@ export const HookManager = (() => {
         /**
          * 특정 Hook만 설치
          * @param type Hook 타입
-         * @param onError
+         * @param callback Hook 타입에 따른 콜백 함수 (선택)
          */
-        install(type: HookType, onError?: (log: ErrorLogData) => void) {
+        install(type: HookType, callback?: (log: any) => void) {
             if (type === 'console' && !installedHooks.console) {
-                installConsoleHook();
+                installConsoleHook(callback);
                 installedHooks.console = true;
             }
             if (type === 'fetch' && !installedHooks.fetch) {
-                installFetchHook();
+                installFetchHook(callback);
                 installedHooks.fetch = true;
             }
             if (type === 'error' && !installedHooks.error) {
-                installErrorHook(onError);
+                installErrorHook(callback);
                 installedHooks.error = true;
             }
         },
