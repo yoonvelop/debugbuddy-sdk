@@ -14,6 +14,31 @@ let originalConsole: Partial<Record<LogLevel, (...args: unknown[]) => void>> = {
 // 수집한 로그 데이터를 저장하는 배열
 const logs: LogData[] = [];
 
+// 재귀를 방지하기 위한 플래그
+let isProcessingLog = false;
+
+// 확장 프로그램 자체의 메시지인지 확인하는 함수
+const isDebugMessage = (args: unknown[]): boolean => {
+  if (args.length === 0) return false;
+
+  // 디버그 메시지 키워드
+  const debugKeywords = [
+    'DebugBuddy',
+    '[DebugBuddy]',
+    '백그라운드로 로그 전송',
+    'Hook 설치 완료',
+    'HookManager 상태',
+  ];
+
+  try {
+    // 첫 번째 인수에 디버그 키워드가 포함되어 있는지 확인
+    const firstArgStr = String(args[0]);
+    return debugKeywords.some((keyword) => firstArgStr.includes(keyword));
+  } catch {
+    return false;
+  }
+};
+
 /**
  * 콘솔 메서드(console.log, console.info, console.warn, console.error)를 가로채서
  * 로그 데이터를 가공하고, 콜백으로 전달하거나, 내부 배열에 저장하는 함수
@@ -27,15 +52,29 @@ export const installConsoleHook = (onLog?: (log: LogData) => void) => {
 
     // console 메서드 재정의
     console[level] = (...args: unknown[]) => {
-      const logData: LogData = {
-        level,
-        message: args,
-        timestamp: Date.now(),
-      };
+      // 디버그 메시지이거나 이미 로그를 처리 중인 경우 건너뛰기
+      if (isProcessingLog || isDebugMessage(args)) {
+        originalConsole[level]?.apply(console, args);
+        return;
+      }
 
-      logs.push(logData);
-      onLog?.(logData);
-      originalConsole[level]?.apply(console, args);
+      // 재귀를 방지하기 위해 처리 플래그 설정
+      isProcessingLog = true;
+
+      try {
+        const logData: LogData = {
+          level,
+          message: args,
+          timestamp: Date.now(),
+        };
+
+        logs.push(logData);
+        onLog?.(logData);
+        originalConsole[level]?.apply(console, args);
+      } finally {
+        // 완료 시 항상 플래그 재설정
+        isProcessingLog = false;
+      }
     };
   });
 };
