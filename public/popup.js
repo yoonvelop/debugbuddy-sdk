@@ -120,6 +120,7 @@ function renderLogs() {
           <div><strong>${escapeHtml(log.message)}</strong></div>
           ${log.source ? `<div>Source: ${escapeHtml(log.source)}</div>` : ''}
           ${log.lineno ? `<div>Line: ${log.lineno}, Column: ${log.colno || 'N/A'}</div>` : ''}
+          ${log.error ? `<div class="error-details">${formatLogMessage(log.error)}</div>` : ''}
         </div>
       `;
     });
@@ -147,6 +148,13 @@ function renderLogs() {
 // 로그 메시지 포맷팅
 function formatLogMessage(messages) {
   if (!Array.isArray(messages)) {
+    if (typeof messages === 'object' && messages !== null) {
+      try {
+        return `<pre>${escapeHtml(JSON.stringify(messages, null, 2))}</pre>`;
+      } catch (e) {
+        return escapeHtml(String(messages));
+      }
+    }
     return escapeHtml(String(messages));
   }
 

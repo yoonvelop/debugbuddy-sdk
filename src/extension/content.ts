@@ -1,5 +1,5 @@
 import { HookManager } from '../core/manager/hookManager';
-import { LogData } from '../core/hooks/consoleHook';
+import { LogData, LogLevel } from '../core/hooks/consoleHook';
 import { ErrorLogData } from '../core/hooks/errorHook';
 import { FetchLogData } from '../core/hooks/fetchHook';
 
@@ -429,3 +429,74 @@ const onFetch = (log: FetchLogData): void => {
 HookManager.install('error', onError);
 HookManager.install('fetch', onFetch);
 safeLog('✅ Hook 설치 완료, 상태:', HookManager.getStatus());
+
+/**
+ * 웹페이지 컨텍스트에 직접 스크립트를 주입하는 함수
+ */
+function injectScriptToPage() {
+  // 외부 스크립트 파일 주입
+  const script = document.createElement('script');
+  script.src = chrome.runtime.getURL('console-hook.js');
+
+  // 스크립트를 페이지에 추가
+  document.documentElement.appendChild(script);
+
+  // 스크립트 로드 후 제거 (선택사항)
+  script.onload = function() {
+    script.remove();
+  };
+}
+
+// DebugBuddy 콘솔 이벤트 세부 정보 인터페이스 정의
+interface DebugBuddyConsoleEventDetail {
+  level: string; // 원래대로 유지
+  args: string;
+}
+// 콘텐츠 스크립트에서 이벤트 리스너 추가
+function setupConsoleEventListener() {
+  window.addEventListener(
+    'debugbuddy_console' as string, // 문자열로 타입 단언
+    function (event: CustomEvent<DebugBuddyConsoleEventDetail>) {
+      try {
+        const detail = event.detail;
+        const level = detail.level;
+        const args = JSON.parse(detail.args);
+
+        // 로그 데이터 생성 및 백그라운드로 전송
+        if (level === 'error') {
+          // 에러 로그는 error 탭으로 전송
+          sendLogsToBackground({
+            console: [],
+            error: [
+              {
+                message: args.join ? args.join(' ') : String(args),
+                type: 'error',
+                error: args, // 에러 객체를 error 필드에 저장
+                timestamp: Date.now(),
+              },
+            ],
+            fetch: [],
+          });
+        } else {
+          // 일반 로그는 console 탭으로 전송
+          sendLogsToBackground({
+            console: [
+              {
+                level: level as LogLevel, // LogLevel로 타입 단언
+                message: args,
+                timestamp: Date.now(),
+              },
+            ],
+            error: [],
+            fetch: [],
+          });
+        }
+      } catch (e) {
+        safeLog('콘솔 이벤트 처리 중 오류:', e);
+      }
+    } as EventListener // EventListener로 타입 단언
+  );
+}
+// 페이지 로드 시 스크립트 주입 및 이벤트 리스너 설정
+injectScriptToPage();
+setupConsoleEventListener();

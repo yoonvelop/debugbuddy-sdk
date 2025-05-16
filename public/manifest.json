@@ -18,5 +18,9 @@
   "action": {
     "default_title": "DebugBuddy",
     "default_popup": "popup.html"
-  }
+  },
+  "web_accessible_resources": [{
+    "resources": ["console-hook.js"],
+    "matches": ["<all_urls>"]
+  }]
 }
