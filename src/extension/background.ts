@@ -21,6 +21,26 @@ const debugLogs: DebugLogsData = {
 };
 
 /**
+ * 로그 데이터를 스토리지에서 로드하는 함수
+ */
+function loadLogsFromStorage(): void {
+  chrome.storage.local.get('debugLogs', (result) => {
+    if (result.debugLogs) {
+      debugLogs.console = result.debugLogs.console || [];
+      debugLogs.error = result.debugLogs.error || [];
+      debugLogs.fetch = result.debugLogs.fetch || [];
+    }
+  });
+}
+
+/**
+ * 로그 데이터를 스토리지에 저장하는 함수
+ */
+function saveLogsToStorage(): void {
+  chrome.storage.local.set({ debugLogs });
+}
+
+/**
  * 로그 업데이트 메시지 타입
  */
 interface LogsUpdateMessage {
@@ -56,6 +76,9 @@ function handleLogsUpdate(message: LogsUpdateMessage): void {
   debugLogs.console = [...debugLogs.console, ...message.payload.console];
   debugLogs.error = [...debugLogs.error, ...message.payload.error];
   debugLogs.fetch = [...debugLogs.fetch, ...message.payload.fetch];
+
+  // 스토리지에 저장
+  saveLogsToStorage();
 }
 
 /**
@@ -66,6 +89,10 @@ function clearLogs(): { success: boolean } {
   debugLogs.console = [];
   debugLogs.error = [];
   debugLogs.fetch = [];
+
+  // 스토리지에서도 삭제
+  saveLogsToStorage();
+
   return { success: true };
 }
 
@@ -98,3 +125,6 @@ chrome.runtime.onInstalled.addListener(() => {
     console.log('✅ DebugBuddy 익스텐션이 설치되었습니다.');
   }
 });
+
+// 백그라운드 스크립트 시작 시 스토리지에서 로그 로드
+loadLogsFromStorage();

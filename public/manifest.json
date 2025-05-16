@@ -3,7 +3,7 @@
   "name": "DebugBuddy",
   "version": "1.0.0",
   "description": "Console log tracker for MCP service",
-  "permissions": ["activeTab", "scripting", "tabs"],
+  "permissions": ["activeTab", "scripting", "tabs", "storage"],
   "background": {
     "service_worker": "background.js"
   },
